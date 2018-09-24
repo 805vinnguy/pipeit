@@ -23,7 +23,6 @@ int main(void) {
     }
     
     if(child_pid == 0) {
-        safe_dup2(pipe[PIPE_READ_END], STDIN_FILENO);
         safe_dup2(pipe[PIPE_WRITE_END], STDOUT_FILENO);
         safe_close(pipe[PIPE_READ_END]);
         safe_close(pipe[PIPE_WRITE_END]);
@@ -32,9 +31,11 @@ int main(void) {
         exit(EXIT_CHILD);
     }
 
+    child_pid = safe_fork();
+    child_pid_list_tail = add_child_pid(child_pid_list_tail, child_pid);
+
     if(child_pid == 0) {
         safe_dup2(pipe[PIPE_READ_END], STDIN_FILENO);
-        safe_dup2(pipe[PIPE_WRITE_END], STDOUT_FILENO);
         safe_close(pipe[PIPE_READ_END]);
         safe_close(pipe[PIPE_WRITE_END]);
         execvp(argv_sort[0], argv_sort);
