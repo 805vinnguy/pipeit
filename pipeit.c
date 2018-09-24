@@ -4,13 +4,47 @@ int main(void) {
     struct child_pid_node* child_pid_list = NULL;
     struct child_pid_node* child_pid_list_tail = child_pid_list;
     pid_t child_pid;
+    int pipe[2];
+    char* argv_ls[2];
+    char* argv_sort[3];
+
+    argv_ls[0] = CMD_LS;
+    argv_ls[1] = NULL;
+    argv_sort[0] = CMD_SORT;
+    argv_sort[1] = REVERSE_ARG;
+    argv_sort[2] = NULL;
+
+    safe_pipe(pipe);
 
     child_pid = safe_fork();
     child_pid_list_tail = add_child_pid(child_pid_list_tail, child_pid);
     if(child_pid_list == NULL) {
         child_pid_list = child_pid_list_tail;
     }
+    
+    if(child_pid == 0) {
+        safe_dup2(pipe[PIPE_READ_END], STDIN_FILENO);
+        safe_dup2(pipe[PIPE_WRITE_END], STDOUT_FILENO);
+        safe_close(pipe[PIPE_READ_END]);
+        safe_close(pipe[PIPE_WRITE_END]);
+        execvp(argv_ls[0], argv_ls);
+        perror(argv_ls[0]);
+        exit(EXIT_CHILD);
+    }
 
+    if(child_pid == 0) {
+        safe_dup2(pipe[PIPE_READ_END], STDIN_FILENO);
+        safe_dup2(pipe[PIPE_WRITE_END], STDOUT_FILENO);
+        safe_close(pipe[PIPE_READ_END]);
+        safe_close(pipe[PIPE_WRITE_END]);
+        execvp(argv_sort[0], argv_sort);
+        perror(argv_sort[0]);
+        exit(EXIT_CHILD);
+    }
+
+    safe_close(pipe[PIPE_READ_END]);
+    safe_close(pipe[PIPE_WRITE_END]);
+    wait_all_children(child_pid_list);
 
     return 0;
 }

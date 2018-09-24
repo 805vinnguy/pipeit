@@ -23,6 +23,10 @@ struct child_pid_node {
 #define EXIT_CHILD -1
 #define PIPE_READ_END 0
 #define PIPE_WRITE_END 1
+#define CMD_LS "ls"
+#define CMD_SORT "sort"
+#define NO_ARG ""
+#define REVERSE_ARG "-r"
 
 /* >>> FUNCTIONS <<< */
 pid_t safe_fork(void);
