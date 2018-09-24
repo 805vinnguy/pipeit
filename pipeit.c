@@ -1,7 +1,16 @@
 #include "pipeit.h"
 
 int main(void) {
-    
+    struct child_pid_node* child_pid_list = NULL;
+    struct child_pid_node* child_pid_list_tail = child_pid_list;
+    pid_t child_pid;
+
+    child_pid = safe_fork();
+    child_pid_list_tail = add_child_pid(child_pid_list_tail, child_pid);
+    if(child_pid_list == NULL) {
+        child_pid_list = child_pid_list_tail;
+    }
+
 
     return 0;
 }
