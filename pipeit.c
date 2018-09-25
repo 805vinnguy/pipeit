@@ -7,7 +7,12 @@ int main(void) {
     int pipe[2];
     char* argv_ls[2];
     char* argv_sort[3];
-    int outfile = open("outfile", O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    int outfile;
+    if( (outfile = open("outfile", O_RDWR | O_CREAT | O_TRUNC, 
+                                   S_IRUSR | S_IWUSR)) < 0) {
+        perror("could not open file");
+        exit(EXIT_FAILURE);
+    }
 
     argv_ls[0] = CMD_LS;
     argv_ls[1] = NULL;
