@@ -7,11 +7,12 @@ int main(void) {
     int pipe[2];
     char* argv_ls[2];
     char* argv_sort[3];
+    int outfile = open("outfile", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
     argv_ls[0] = CMD_LS;
     argv_ls[1] = NULL;
     argv_sort[0] = CMD_SORT;
-    argv_sort[1] = REVERSE_ARG;
+    argv_sort[1] = SORT_ARG;
     argv_sort[2] = NULL;
 
     safe_pipe(pipe);
@@ -36,6 +37,7 @@ int main(void) {
 
     if(child_pid == 0) {
         safe_dup2(pipe[PIPE_READ_END], STDIN_FILENO);
+        safe_dup2(outfile, STDOUT_FILENO);
         safe_close(pipe[PIPE_READ_END]);
         safe_close(pipe[PIPE_WRITE_END]);
         execvp(argv_sort[0], argv_sort);
@@ -46,6 +48,7 @@ int main(void) {
     safe_close(pipe[PIPE_READ_END]);
     safe_close(pipe[PIPE_WRITE_END]);
     wait_all_children(child_pid_list);
+    safe_close(outfile);
 
     return 0;
 }
